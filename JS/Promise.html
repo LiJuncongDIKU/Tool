@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script>
+        var dataShare = 0;
+        var request = function (val,resolve, reject) {
+            setTimeout(function () {
+                dataShare = val;
+                resolve();
+            }, 1000);
+            // console.log("dataShare = ",dataShare);
+        }
+        var runner = function () {
+            let pr1 = new Promise(function (resolve, reject) {
+                request(500,resolve, reject);
+            });
+            pr1.then(res => {
+                console.log("dataShare = ", dataShare);
+            });
+        }
+        runner();
+    </script>
+</head>
+
+<body>
+
+</body>
+
+</html>
