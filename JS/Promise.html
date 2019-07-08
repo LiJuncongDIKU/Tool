@@ -6,29 +6,77 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
-    <script>
-        var dataShare = 0;
-        var request = function (val,resolve, reject) {
-            setTimeout(function () {
-                dataShare = val;
-                resolve();
-            }, 1000);
-            // console.log("dataShare = ",dataShare);
+    <style>
+        /* .cut{
+            height: 100px;
+            overflow: hidden; 
+            position: absolute;
+            left: 200px;
+            top: 100px;
+        } */
+        .slant {
+            background-color: grey;
+            transform: skew(-10deg);
+            width: 80px;
+            height: 160px;
+            overflow: hidden;
+            position: absolute;
+            left: 200px;
+            top: 100px;
         }
-        var runner = function () {
-            let pr1 = new Promise(function (resolve, reject) {
-                request(500,resolve, reject);
-            });
-            pr1.then(res => {
-                console.log("dataShare = ", dataShare);
-            });
+
+        .content {
+            width: 80px;
+            height: 160px;
+            background-color: blue;
+            transform: skew(10deg);
         }
-        runner();
-    </script>
+    </style>
 </head>
 
 <body>
+    <!-- <div class="cut"> -->
+        <div class="slant">
+            <div class="content">
+                123
+            </div>
+        </div>
+    <!-- </div> -->
+    <br>
+    <div id="ct"></div>
+    <script>
+        var dataShare = 0;
+        let prm1 = new Promise(function (resolve, reject) {
+            setTimeout(() => {
+                output("prm1 before resolve");
+                resolve("prm1 before result");
+            }, 500);
+        }).then(res => {
+            return new Promise(function (resolve, reject) {
+                setTimeout(() => {
+                    output("prm1 then:" + res);
+                    resolve("prm1 then1 result");
+                }, 500);
+            });
+        }).then(res1 => {
+            output("prm1 then2: " + res1);
+            return "prm1 then2 result";
+        });
+        let prm2 = new Promise(function (resolve, reject) {
+            output("prm2 before resolve");
+            resolve("before Result");
+        }).then(res => {
+            output("prm2 then");
+            return "prm2 then result"
+        });
+        Promise.all([prm1, prm2]).then(vals => {
+            output("all then " + typeof (vals) + ": " + vals);
+        });
 
+        function output(str) {
+            document.getElementById("ct").innerHTML += (str + "<br>");
+        }
+    </script>
 </body>
 
 </html>
