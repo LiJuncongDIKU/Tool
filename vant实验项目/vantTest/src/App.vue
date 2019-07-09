@@ -1,7 +1,9 @@
 <template>
   <div id="app">
     <!-- <img src="./assets/logo.png"> -->
-    <router-link to="/showBench">showBench</router-link>
+    <router-link to="/showBench">showCanvasCard</router-link>
+    <Divider type="vertical" />
+    <router-link to="/doubleColorBall">DoubleColorBall</router-link>
     <hr>
     <router-view/>
   </div>
