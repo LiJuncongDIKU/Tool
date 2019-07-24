@@ -1,13 +1,10 @@
 <template>
     <div class="center">
-        <Alert v-if="waiting">
-            <Icon type="md-sync" />正在处理……
-        </Alert>
         <Row>
             <Col span="8">
                 <table>
                     <tr>
-                        <td
+                        <!-- <td
                             v-if="redArr.length"
                             v-for="(item, index) in redArr"
                             :key="'oneTime'+index"
@@ -16,7 +13,7 @@
                         </td>
                         <td>
                             <div class="blue ball">{{blueA}}</div>
-                        </td>
+                        </td>-->
                         <td>
                             <div>
                                 一次统计次
@@ -27,33 +24,26 @@
                                     @click="changeBallsTimes"
                                     :disabled="disableGo"
                                 >Go!</Button>
+                                <div
+                                    style="display: inline-block;position:relative;top:5px;left:10px;"
+                                >
+                                    <Spin v-if="disableGo"></Spin>
+                                </div>
                             </div>
                         </td>
                     </tr>
                 </table>
             </Col>
-            <!-- <Col span="8">
-                <table style="max-height:500px; overflow:auto;display: block;">
-                    <tr v-for="(group, index) in history" :key="'group'+index">
-                        <td v-for="(redBall, idx) in group[0]" :key="'redGp'+idx">
-                            <div class="red ball">{{redBall}}</div>
-                        </td>
-                        <td>
-                            <div class="blue ball">{{group[1]}}</div>
-                        </td>
-                    </tr>
-                </table>
-            </Col> -->
-            <Col span="8">
+            <Col span="16">
                 <!-- 统计处 -->
+                <h2>{{one_Time}}次统计建议:</h2>
                 <!-- 出现次表 -->
                 <div id="timesChart" class="chart-box"></div>
-                <h2>{{history.length}}次统计建议:</h2>
                 <div
                     v-for="(item, index) in hopeRedBalls"
                     :key="'resRed'+index"
                     class="ball red"
-                >{{item.num}}</div>
+                >{{item}}</div>
                 <div
                     v-for="(item, index) in blueBalls"
                     :key="'resBlue'+index"
@@ -71,13 +61,15 @@ export default {
         return {
             redArr: [],
             blueA: 0,
-            history: [],
             timesChart: null,
             hopeRedBalls: [],
             blueBalls: [],
             disableGo: false,
             clTimes: 1,
-            waiting: false
+            waiting: false,
+            one_Time: 0,
+            redTimes: [],
+            blueTimes: []
         };
     },
     mounted() {
@@ -100,14 +92,29 @@ export default {
             // }, 300);
             that.disableGo = true;
             that.waiting = true;
-            while (that.clTimes) {
-                that.changeBalls();
-                that.clTimes--;
-            }
-            that.waiting = false;
-            that.disableGo = false;
-            that.clTimes = 1;
-            that.updateTimesChart();
+            let data = new URLSearchParams();
+            data.append("times", that.clTimes);
+            that.$axios.post("/api", data).then(res => {
+                that.redTimes = res.data.redTimes;
+                that.blueTimes = res.data.blueTimes;
+                that.hopeRedBalls = res.data.hope.redArr;
+                that.hopeRedBalls.sort(that.sortRed);
+                that.blueBalls = res.data.hope.blueArr;
+                that.blueBalls.sort(that.sortRed);
+                that.updateTimesChart();
+                that.disableGo = false;
+                that.waiting = false;
+                that.one_Time = that.clTimes;
+                that.clTimes = 0;
+            }).catch(err => {
+                console.log(err);
+                
+                that.disableGo = false;
+                that.waiting = false;
+                that.one_Time = that.clTimes;
+                that.clTimes = 0;
+                this.$Message.error({content:"后台出错"})
+            });
         },
         changeBalls() {
             const that = this;
@@ -123,9 +130,6 @@ export default {
             that.redArr.sort(that.sortRed);
             // 蓝球 <!-- 1-16 *1-->
             that.blueA = that.getRandomLimit(16).toFixed(0);
-
-            //写入历史
-            that.history.unshift([that.redArr, that.blueA]);
         },
         getRandomLimit(limit) {
             let rd = Math.random() * 100 + limit;
@@ -169,7 +173,18 @@ export default {
                         name: "出现",
                         min: 0,
                         axisLabel: {
-                            formatter: "{value} 次"
+                            formatter: function(value) {
+                                let suf = "";
+                                if (value >= 10000) {
+                                    value /= 10000;
+                                    suf = "W" + suf;
+                                }
+                                if (value >= 1000) {
+                                    value /= 1000;
+                                    suf = "K" + suf;
+                                }
+                                return value.toFixed(1) + suf;
+                            }
                         }
                     }
                 ],
@@ -177,87 +192,15 @@ export default {
                     {
                         name: "红球",
                         type: "bar",
-                        data: (function(params) {
-                            let res = new Array(33)
-                                .fill({})
-                                .map((currentValue, index) => {
-                                    return { num: index + 1, times: 0 };
-                                });
-                            that.history.forEach(group => {
-                                group[0].forEach(ele => {
-                                    // console.log(ele - 1);
-
-                                    res[ele - 1].times++;
-                                });
-                            });
-                            // console.log(res);
-
-                            that.hopeRedBalls = [];
-                            let temp = new Array(33)
-                                .fill({})
-                                .map((currentValue, index) => {
-                                    return res[index];
-                                });
-                            // console.log("temp:",temp);
-                            temp.sort((a, b) => {
-                                return b.times - a.times;
-                            });
-                            let lastTime = 0; // 最后一个球出现的次数
-                            while (true) {
-                                let hopeLength = that.hopeRedBalls.length;
-                                let aBall = temp[hopeLength];
-                                if (
-                                    hopeLength >= 6 &&
-                                    aBall.times != lastTime
-                                ) {
-                                    break;
-                                }
-                                that.hopeRedBalls.push(aBall);
-                                lastTime = aBall.times;
-                            }
-                            that.hopeRedBalls.sort(function(a, b) {
-                                return a.num - b.num;
-                            });
-                            return res.map(currentValue => {
-                                return currentValue.times;
-                            });
-                        })()
+                        data: that.redTimes
                     },
                     {
                         name: "蓝球",
                         type: "line",
-                        data: (function(params) {
-                            let res = new Array(16).fill(0);
-                            that.history.forEach(group => {
-                                res[group[1] - 1]++;
-                            });
-                            // console.log(res);
-                            let max = 0;
-                            that.blueBalls = [];
-                            res.forEach((ele, index) => {
-                                // console.log(index,ele);
-                                if (ele > max) {
-                                    that.blueBalls = [];
-                                    max = ele;
-                                    that.blueBalls.push(index + 1);
-                                } else if (ele == max) {
-                                    let flag = true;
-                                    that.blueBalls.forEach(ball => {
-                                        if (ball == index + 1) {
-                                            flag = false;
-                                        }
-                                    });
-                                    if (flag) {
-                                        that.blueBalls.push(index + +1);
-                                    }
-                                }
-                            });
-                            return res;
-                        })()
+                        data: that.blueTimes
                     }
                 ]
             };
-            // console.log(that.history)
             that.timesChart.setOption(opt);
             that.disableGo = false;
         }
@@ -292,5 +235,8 @@ tr td {
 .chart-box {
     width: 100%;
     height: 400px;
+}
+.demo-spin-icon-load {
+    animation: ani-demo-spin 1s linear infinite;
 }
 </style>
