@@ -1,0 +1,21 @@
+/**
+    修改记录
+    + 2019-08-03 @白猫
+*/
+.test {
+  flex-wrap: wrap;
+  display: -webkit-flex;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+@media screen and (min-width: calc(200px*2)) {
+  .test {
+    flex-direction: row;
+  }
+}
+@media screen and (max-width: calc(200px*2)) {
+  .test {
+    flex-direction: column;
+  }
+}

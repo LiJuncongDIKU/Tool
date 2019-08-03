@@ -1,0 +1,61 @@
+/**
+    修改记录
+    + 2019-08-03 @白猫
+*/
+
+.test {
+    // 用户查看编译结果的类
+    .flex-content(200px, 2);
+}
+
+
+// 变量定义
+@pad-width: 1024px;
+@pad-height: 768px;
+
+// 水平居中 @m: 垂直margin
+.center-block(@m: 0px) {
+    display: block;
+    text-align: center;
+    margin: @m auto;
+}
+
+// 第一个子元素中的内容垂直居中
+.center-vertical() {
+    display: block;
+    position: relative;
+
+    >div:first-child {
+        position: relative;
+        top: 50%;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        display: block;
+        transform: translateY(-50%);
+    }
+}
+
+// 设置最小宽度为@pad-width
+.frame-pad() {
+    width: 100vw;
+    min-width: @pad-width;
+}
+
+// 传入子组件的大小
+.flex-content (@childWidth: 100, @num:2) {
+    @jg: calc(@childWidth*@num); // 判断大小
+
+    @media screen and (min-width:@jg) {
+        flex-direction: row;
+    }
+
+    @media screen and (max-width:@jg) {
+        flex-direction: column;
+    }
+    flex-wrap: wrap;
+    display: -webkit-flex;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
