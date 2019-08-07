@@ -94,27 +94,35 @@ export default {
             that.waiting = true;
             let data = new URLSearchParams();
             data.append("times", that.clTimes);
-            that.$axios.post("/api", data).then(res => {
-                that.redTimes = res.data.redTimes;
-                that.blueTimes = res.data.blueTimes;
-                that.hopeRedBalls = res.data.hope.redArr;
-                that.hopeRedBalls.sort(that.sortRed);
-                that.blueBalls = res.data.hope.blueArr;
-                that.blueBalls.sort(that.sortRed);
-                that.updateTimesChart();
-                that.disableGo = false;
-                that.waiting = false;
-                that.one_Time = that.clTimes;
-                that.clTimes = 0;
-            }).catch(err => {
-                console.log(err);
-                
-                that.disableGo = false;
-                that.waiting = false;
-                that.one_Time = that.clTimes;
-                that.clTimes = 0;
-                this.$Message.error({content:"后台出错"})
+            let instance = that.$axios.create({
+                baseURL: "",
+                timeout: 1000 * 60 * 60
             });
+            instance
+                .post("/api", data)
+                .then(res => {
+                    console.log(res.data);
+                    that.redTimes = res.data.redTimes;
+                    that.blueTimes = res.data.blueTimes;
+                    that.hopeRedBalls = res.data.hope.redArr;
+                    that.hopeRedBalls.sort(that.sortRed);
+                    that.blueBalls = res.data.hope.blueArr;
+                    that.blueBalls.sort(that.sortRed);
+                    that.updateTimesChart();
+                    that.disableGo = false;
+                    that.waiting = false;
+                    that.one_Time = that.clTimes;
+                    that.clTimes = 0;
+                })
+                .catch(err => {
+                    console.log(err);
+
+                    that.disableGo = false;
+                    that.waiting = false;
+                    that.one_Time = that.clTimes;
+                    that.clTimes = 0;
+                    this.$Message.error({ content: "后台出错" });
+                });
         },
         changeBalls() {
             const that = this;

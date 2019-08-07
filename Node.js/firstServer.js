@@ -10,10 +10,6 @@ http.createServer(function (request, response) {
     // 内容类型: text/plain
     let post = "";
     if (request.method == "POST") {
-        response.writeHead(200, {
-            'Content-Type': 'text/html,text/json'
-        });
-
         request.on('data', function (chunk) {
             post += chunk;
             // console.log(post);
@@ -21,7 +17,18 @@ http.createServer(function (request, response) {
         request.on('end', function () {
             post = querystring.parse(post);
             // console.log("after:",post);
-            response.end(JSON.stringify(doubleBall.run(post.times)));
+            let res = doubleBall.run(post.times);
+            if (typeof res === "string") {
+                response.writeHead(304, {
+                    'Content-Type': 'text/html,text/json'
+                });
+                response.end(res);
+            }else{
+                response.writeHead(200, {
+                    'Content-Type': 'text/html,text/json'
+                });
+                response.end(JSON.stringify(res));
+            }           
         });
 
     } else {

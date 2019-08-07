@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <!-- <img src="./assets/logo.png"> -->
+    <!-- <input v-model.number="num" type="number"></input> -->
     <router-link to="/showBench">showCanvasCard</router-link>
     <Divider type="vertical" />
     <router-link to="/doubleColorBall">DoubleColorBall</router-link>
@@ -11,7 +12,12 @@
 
 <script>
 export default {
-  name: 'App'
+  name: 'App',
+  data() {
+    return {
+      // num:"a000",
+    }
+  },
 }
 </script>
 

@@ -108,6 +108,10 @@ function getHead2() {
             blueRes.push(index + 1);
         }
     } while (index > -1);
+    // 重置数组
+    redTimes = new Array(33).fill(0);
+    blueTimes = new Array(16).fill(0);
+
     return { redArr: resRed, blueArr: blueRes };
 }
 
@@ -116,6 +120,7 @@ function getHead2() {
  * @param {Number} times 
  */
 function run(times) {
+    console.log(new Date(), "收到请求", times);
     if (times == 0) {
         return {
             redTimes: 0,
@@ -126,8 +131,11 @@ function run(times) {
         while (times) {
             runOnce();
             times--;
+            if (!(times % 500000)) {
+                console.log("剩余模拟次数：", times);
+            }
         }
-
+        console.log("正在统计...");
         return {
             redTimes: redTimes,
             blueTimes: blueTimes,
