@@ -4,10 +4,8 @@
 */
 
 .test {
-    // 用户查看编译结果的类
-    .flex-content(200px, 2);
+    .flex-split(200px);
 }
-
 
 // 变量定义
 @pad-width: 1024px;
@@ -43,7 +41,7 @@
 }
 
 // 传入子组件的大小
-.flex-content (@childWidth: 100, @num:2) {
+.flex-content (@childWidth: 100, @num: 2) {
     @jg: calc(@childWidth*@num); // 判断大小
 
     @media screen and (min-width:@jg) {
@@ -53,9 +51,59 @@
     @media screen and (max-width:@jg) {
         flex-direction: column;
     }
+
     flex-wrap: wrap;
     display: -webkit-flex;
     display: flex;
     align-items: center;
     justify-content: space-around;
+}
+
+// 居中且左右分割,指定高度 两者配合使用
+.flex-split(@h: 100px) {
+    display: flex;
+    align-items: center;
+    height: @h;
+}
+
+.flex-split-side(@w: 50%, @m: 5%) {
+    width: @w - 2* @m;
+    margin: @m;
+}
+
+// 前缀 icon L: 线
+.pre-legend(L, @c, @s) {
+    &:before {
+        content: '一';
+        display: inline-block;
+        color: @c;
+        width: @s;
+        height: @s;
+        margin: 0 5px 0 0;
+        border-radius: @s / 2;
+    }
+}
+// C：圆形
+.pre-legend(C, @c, @s) {
+    &:before {
+        content: ' ';
+        display: inline-block;
+        background-color: @c;
+        width: @s;
+        height: @s;
+        margin: 0 5px 0 0;
+        border-radius: @s / 2;
+    }
+}
+// B：方块
+.pre-legend(B, @c, @s: 16px) {
+    display: inline-block;
+    &:before {
+        content: ' ';
+        display: inline-block;
+        background-color: @c;
+        width: @s;
+        height: @s;
+        margin: 0 5px 0 0;
+    }
 }
